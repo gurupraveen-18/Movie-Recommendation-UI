@@ -1,0 +1,17 @@
+{% extends 'movie_app/base.html' %}
+{% load static %}
+
+{% block title %}Home | MovieVerse{% endblock %}
+
+{% block content %}
+<div class="neon-hero">
+    <h1>Welcome to <span>MovieVerse</span></h1>
+    <p>Streamlined movie picks, glowing with style!</p>
+</div>
+
+<h2 class="section-heading">🎬 Featured Movies</h2>
+
+<div class="explore">
+    <a href="{% url 'categories' %}" class="explore-btn">🚀 Explore Now</a>
+</div>
+{% endblock %}

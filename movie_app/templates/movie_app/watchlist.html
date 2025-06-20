@@ -1,0 +1,168 @@
+{% extends 'movie_app/base.html' %}
+{% load static %}
+
+{% block title %}My Watchlist | MovieVerse{% endblock %}
+
+{% block content %}
+<h2 class="page-title">📽️ My Watchlist</h2>
+
+<div class="watchlist-grid">
+  {% for movie in movies %}
+  <div class="movie-card" data-id="{{ movie.id }}">
+    <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="poster">
+    <div class="movie-info">
+      <h3 class="title">{{ movie.title }}</h3>
+      <p class="genres">
+        {% for genre in movie.genres.all %}
+        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+      <!-- Hidden data for side panel -->
+      <span class="rating" style="display: none;">{{ movie.rating }}</span>
+      <div class="languages" style="display: none;">
+        {% for lang in movie.languages.all %}
+        <span class="tag">{{ lang.name }}</span>
+        {% endfor %}
+      </div>
+
+      <p class="description" style="display:none;">{{ movie.description }}</p>
+
+      <div class="ott-platforms" style="display: none;">
+        {% for ott in movie.ott_links.all %}
+        <div class="ott-platform" data-link="{{ ott.link }}">
+          <img src="{{ ott.logo.url }}" alt="{{ ott.name }}" class="ott-logo" />
+        </div>
+        {% endfor %}
+      </div>
+
+
+
+
+      <div class="card-footer">
+        <span class="year">{{ movie.release_year }}</span>
+        <form method="post" action="{% url 'remove_from_watchlist' movie.id %}">
+          {% csrf_token %}
+          <button type="submit" class="remove-btn">Remove</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p class="empty-message">Your watchlist is empty.</p>
+  {% endfor %}
+</div>
+
+
+<div id="details-panel" class="details-panel">
+  <button id="close-panel">✖</button>
+
+  <img id="detail-poster" src="" alt="Poster" />
+
+  <h2 id="detail-title">Title</h2>
+
+  <div class="info-pair">
+    <strong>Release Year:</strong> <span id="detail-year">N/A</span>
+  </div>
+
+  <div class="info-pair">
+    <strong>Rating:</strong> ⭐ <span id="detail-rating">N/A</span>
+  </div>
+
+  <div class="info-pair">
+    <strong>Genres:</strong> <span id="detail-genres">N/A</span>
+  </div>
+
+  <div class="info-pair">
+    <p><strong>Languages:</strong> <span id="detail-languages">N/A</span></p>
+  </div>
+
+  <div class="info-pair">
+    <strong>Description:</strong>
+    <p id="detail-description">N/A</p>
+  </div>
+
+  <div id="detail-ott" class="ott-links"></div>
+</div>
+
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const cards = document.querySelectorAll(".movie-card");
+    const panel = document.getElementById("details-panel");
+    const closeBtn = document.getElementById("close-panel");
+
+    const detailPoster = document.getElementById("detail-poster");
+    const detailTitle = document.getElementById("detail-title");
+    const detailGenres = document.getElementById("detail-genres");
+    const detailYear = document.getElementById("detail-year");
+    const detailLangs = document.getElementById("detail-languages");
+    const detailRating = document.getElementById("detail-rating");
+    const detailDescription = document.getElementById("detail-description");
+    const detailOtt = document.getElementById("detail-ott");
+
+    cards.forEach(card => {
+      card.addEventListener("click", function (e) {
+        if (e.target.closest("form") || e.target.tagName === "BUTTON") return;
+
+        const poster = card.querySelector("img")?.src || "";
+        const title = card.querySelector(".title")?.innerText || "";
+        const year = card.querySelector(".year")?.innerText || "";
+        const rating = card.querySelector(".rating")?.innerText || "";
+        const genres = card.querySelector(".genres")?.innerHTML || "";
+        const langs = card.querySelector(".languages")?.innerHTML || "";
+        const description = card.querySelector(".description")?.innerText || "";
+        const ottPlatforms = card.querySelectorAll(".ott-platforms .ott-platform");
+
+        detailPoster.src = poster;
+        detailTitle.textContent = title;
+        detailYear.textContent = year;
+        detailRating.textContent = rating;
+        detailGenres.innerHTML = genres;
+        detailLangs.innerHTML = langs;
+        detailDescription.textContent = description;
+        detailOtt.innerHTML = "";
+
+        // Inject custom OTT logo + button combo
+        ottPlatforms.forEach(platform => {
+          const logoSrc = platform.querySelector("img")?.src || "";
+          const logoAlt = platform.querySelector("img")?.alt || "OTT";
+          const ottLink = platform.dataset.link;
+
+          // Create logo image
+          const logoImg = document.createElement("img");
+          logoImg.src = logoSrc;
+          logoImg.alt = logoAlt;
+          logoImg.className = "ott-logo";
+
+          // Create glowing "Watch Now" button
+          const watchBtn = document.createElement("a");
+          watchBtn.href = ottLink;
+          watchBtn.target = "_blank";
+          watchBtn.className = "watch-now-btn";
+          watchBtn.textContent = "Watch Now";
+
+          // Wrap in a container
+          const wrapper = document.createElement("div");
+          wrapper.className = "ott-wrapper";
+          wrapper.appendChild(logoImg);
+          wrapper.appendChild(watchBtn);
+
+          detailOtt.appendChild(wrapper);
+        });
+        panel.classList.add("active");
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        panel.classList.remove("active");
+      });
+    }
+  });
+</script>
+
+
+
+{% endblock %}

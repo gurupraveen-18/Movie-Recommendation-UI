@@ -1,0 +1,106 @@
+{% extends 'movie_app/base.html' %}
+{% load static %}
+
+{% block title %}Suggest a Movie | MovieVerse{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-title {
+        text-align: center;
+        font-size: 2rem;
+    }
+
+    .review-form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        color: #fff;
+    }
+
+    .glossy-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .glossy-form label {
+        font-weight: 500;
+    }
+
+    .glossy-form input {
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .glossy-form input:focus {
+        outline: 2px solid #00ffff;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .submit-btn {
+        padding: 12px;
+        background: linear-gradient(to right, #00ffff, #0077ff);
+        color: #000;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .submit-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .message-list {
+        list-style: none;
+        padding: 0;
+        color: #0f0;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<h2 class="page-title">📩 Suggest Your Favourite Movie</h2>
+
+<div class="review-form-container">
+    <form method="post" class="glossy-form">
+        {% csrf_token %}
+
+        {% if messages %}
+        <ul class="message-list">
+            {% for message in messages %}
+            <li class="message">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <label for="username">Your Name:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="email">Your Email ID:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="movie_name">Movie Name:</label>
+        <input type="text" id="movie_name" name="movie_name" required>
+
+        <label for="release_year">Release Year:</label>
+        <input type="number" id="release_year" name="release_year" required>
+
+        <label for="genre">Genre:</label>
+        <input type="text" id="genre" name="genre" required>
+
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+{% endblock %}

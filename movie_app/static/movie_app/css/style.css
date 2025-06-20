@@ -1,0 +1,363 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background-size: 600% 600%;
+    animation: gradientMove 15s ease infinite;
+    color: #fff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Neon Blur Glows */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 0, 94, 0.5), transparent 70%);
+    filter: blur(100px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+body::before {
+    top: -100px;
+    left: -100px;
+}
+
+body::after {
+    bottom: -100px;
+    right: -100px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px;
+    position: relative;
+    z-index: 2;
+}
+
+/* explore button */
+
+.explore {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.explore-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 18px;
+    background: linear-gradient(135deg, #ff00ff, #00ffff);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.6), 0 0 20px rgba(0, 255, 255, 0.4);
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.explore-btn:hover {
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);
+    transform: scale(1.05);
+}
+
+
+/* Flash Messages */
+.flash-messages {
+    margin: 20px auto;
+    max-width: 800px;
+    text-align: center;
+}
+
+.flash {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.flash.success {
+    background-color: #1a3f1a;
+    color: #00ff66;
+}
+
+.flash.info {
+    background-color: #0a223f;
+    color: #33bbff;
+}
+
+.flash.warning {
+    background-color: #3f1a1a;
+    color: #ff4444;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Neon Hero Section */
+.neon-hero {
+    text-align: center;
+    margin: 40px auto 60px;
+    padding: 30px 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 25px rgba(255, 0, 150, 0.3), 0 0 40px rgba(0, 200, 255, 0.2);
+    max-width: 800px;
+}
+
+.neon-hero h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.neon-hero span {
+    color: #00f7ff;
+    text-shadow: 0 0 4px #b700ff, 0 0 8px #b700ff, 0 0 12px #b700ff;
+}
+
+
+.neon-hero p {
+    font-size: 18px;
+    color: #ddd;
+}
+
+.section-heading {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #ff0055;
+}
+
+
+.watchlist-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+@media (max-width: 1200px) {
+    .watchlist-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .watchlist-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .watchlist-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.movie-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    color: #fff;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.movie-card:hover {
+    transform: scale(1.03);
+}
+
+.poster {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    max-height: 320px;
+}
+
+.movie-info {
+    width: 100%;
+    text-align: center;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.remove-btn {
+    background: #ff4c4c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.details-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 100%;
+    height: 100%;
+    background: rgba(20, 20, 20, 0.9);
+    backdrop-filter: blur(10px);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.6);
+    color: #fff;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+    z-index: 999;
+}
+
+.details-panel::-webkit-scrollbar {
+    display: none;
+}
+
+.details-panel.active {
+    transform: translateX(0);
+}
+
+.details-panel button#close-panel {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.details-panel img#detail-poster {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+.details-panel h2 {
+    margin: 10px 0;
+    font-size: 1.5em;
+    color: #00ffc3;
+}
+
+.details-panel p,
+.details-panel span,
+.details-panel strong {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.details-panel #detail-ott {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.details-panel #detail-ott img {
+    height: 30px;
+    object-fit: contain;
+}
+
+.details-panel * {
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+    .details-panel {
+        width: 100%;
+        padding: 20px 16px;
+        /* Top-bottom: 20px | Left-right: 16px */
+        box-sizing: border-box;
+    }
+
+    .details-panel h2 {
+        font-size: 1.3em;
+    }
+
+    .details-panel button#close-panel {
+        font-size: 20px;
+        right: 12px;
+    }
+
+    .details-panel p,
+    .details-panel span,
+    .details-panel strong {
+        font-size: 0.95rem;
+        word-wrap: break-word;
+    }
+}
+
+.ott-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.ott-logo {
+    height: 40px;
+    width: auto;
+    border-radius: 6px;
+}
+
+.watch-now-btn {
+    padding: 8px 14px;
+    background: linear-gradient(45deg, #ff4c68, #ff6b81);
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 0 8px #ff6b81;
+    transition: all 0.3s ease;
+}
+
+.watch-now-btn:hover {
+    background: linear-gradient(45deg, #ff6b81, #ff4c68);
+    box-shadow: 0 0 12px #ff6b81, 0 0 20px #ff4c68;
+    transform: scale(1.05);
+}

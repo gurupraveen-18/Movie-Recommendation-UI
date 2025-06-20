@@ -1,0 +1,714 @@
+{% extends 'movie_app/base.html' %}
+{% load custom_filters %}
+{% block title %}Categories - MovieVerse{% endblock %}
+
+{% block content %}
+<button id="toggleSidebar" class="toggle-btn">☰ More Options</button>
+
+<!-- Featured Movie Banner -->
+<div class="window-1">
+    <!-- Top Half: Featured Banner (50vh) -->
+    <section class="featured-banner" style="background-image: url('{{ featured_movie.poster.url }}'); height: 50vh;">
+        <div class="overlay">
+            <div class="featured-content">
+                <h1>{{ featured_movie.title }}</h1>
+                <p class="genres">
+                    {% for genre in featured_movie.genres.all %}
+                    {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p class="rating">⭐ {{ featured_movie.rating }}/10</p>
+                <p class="description">{{ featured_movie.description|truncatewords:20 }}</p>
+                <div class="actions">
+                    {% with ott=featured_movie.ott_links.first %}
+                    {% if ott %}
+                    <a href="{{ ott.link }}" target="_blank" class="btn">▶ Play</a>
+                    {% else %}
+                    <a href="#" class="btn disabled">▶ Play</a>
+                    {% endif %}
+                    {% endwith %}
+                    <form method="post" action="{% url 'add_to_watchlist' featured_movie.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn secondary">➕ Add to List</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Half of Window 1 (Sidebar + Carousel) -->
+    <div class="main-container" style="height: 50vh;">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" style="height: 100%; width: 30%;">
+            <form method="GET" action="{% url 'categories' %}" class="sidebar-form">
+                <input type="text" id="search" name="search" placeholder="🔍 Search..."
+                    value="{{ request.GET.search }}">
+
+                <select name="language">
+                    <option value="">🌐 All Languages</option>
+                    {% for lang in languages %}
+                    {% with lang_id=lang.id|stringformat:"s" current_lang=request.GET.language %}
+                    {% if current_lang == lang_id %}
+                    <option value="{{ lang.id }}" selected>{{ lang.name }}</option>
+                    {% else %}
+                    <option value="{{ lang.id }}">{{ lang.name }}</option>
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
+                </select>
+
+                <select name="rating">
+                    <option value="">⭐ All Ratings</option>
+                    <option value="9" {% if selected_rating|is_selected:"9" %}selected{% endif %}>9+</option>
+                    <option value="8" {% if selected_rating|is_selected:"8" %}selected{% endif %}>8+</option>
+                    <option value="7" {% if selected_rating|is_selected:"7" %}selected{% endif %}>7+</option>
+                </select>
+
+                <button type="submit">Apply</button>
+                <a href="{% url 'categories' %}" class="reset-link">Reset</a>
+
+                <h4>🎬 Genres</h4>
+                <ul class="genre-list">
+                    {% for genre in genres %}
+                    {% with genre_id=genre.id|stringformat:"s" current_genre=request.GET.genre %}
+                    <li>
+                        <a href="{% url 'categories' %}?genre={{ genre.id }}"
+                            class="{% if current_genre == genre_id %}active{% endif %}">
+                            {{ genre.name }}
+                        </a>
+                    </li>
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+            </form>
+        </aside>
+
+        <!-- Carousel -->
+        <div class="right-content"
+            style="height: 100%; width: 70%; display: flex; align-items: center; justify-content: center;">
+            <script id="carousel-data" type="application/json">
+                {{ carousel_json|safe }}
+            </script>
+
+            <div class="carousel-wrapper">
+                <div class="carousel-card left-card">
+                    <img src="{{ carousel_movies.2.poster.url }}" alt="{{ carousel_movies.2.title }}">
+                    <h4>{{ carousel_movies.2.title }}</h4>
+                </div>
+                <div class="carousel-card center-card">
+                    <img src="{{ carousel_movies.0.poster.url }}" alt="{{ carousel_movies.0.title }}">
+                    <h4>{{ carousel_movies.0.title }}</h4>
+                </div>
+                <div class="carousel-card right-card">
+                    <img src="{{ carousel_movies.1.poster.url }}" alt="{{ carousel_movies.1.title }}">
+                    <h4>{{ carousel_movies.1.title }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% if filtered_results %}
+<div class="filtered-grid-section" style="height: 100vh; overflow-y: auto;">
+    <h2>Search Results</h2>
+    <div class="movie-grid">
+        {% for movie in filtered_results %}
+        <div class="movie-card full-details">
+            <div class="poster">
+                <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+            </div>
+            <h3 class="title">{{ movie.title }}</h3>
+            <div class="details">
+                <span>⭐ {{ movie.rating }}</span>
+                <span>📅 {{ movie.release_year }}</span>
+            </div>
+            <div class="languages">
+                <strong>Languages:</strong>
+                {% for lang in movie.languages.all %}
+                <span class="tag">{{ lang.name }}</span>
+                {% empty %}
+                <span class="tag">N/A</span>
+                {% endfor %}
+            </div>
+            <div class="genres">
+                <strong>Genres:</strong>
+                {% for genre in movie.genres.all %}
+                <span class="tag">{{ genre.name }}</span>
+                {% empty %}
+                <span class="tag">N/A</span>
+                {% endfor %}
+            </div>
+            <div class="ott-platforms">
+                {% for ott in movie.ott_links.all %}
+                <div class="ott-platform">
+                    <a href="{{ ott.link }}" target="_blank">
+                        <img src="{{ ott.logo.url }}" alt="{{ ott.name }}" class="ott-logo">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <form method="post" action="{% url 'add_to_watchlist' movie.id %}">
+                {% csrf_token %}
+                <button type="submit" class="watchlist-btn">+ Add to Watchlist</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+<style>
+    /* === Base Layout === */
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', sans-serif;
+        overflow-x: hidden;
+        color: #fff;
+    }
+
+    .toggle-btn {
+        display: none;
+        margin: 1rem;
+        padding: 0.6rem 1rem;
+        background: #00ffaa;
+        color: #000;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    .main-container {
+        display: flex;
+        padding: 20px;
+        gap: 25px;
+        align-items: flex-start;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+
+    .right-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        overflow: hidden;
+    }
+
+    /* === Featured Banner === */
+    .featured-banner {
+        position: relative;
+        height: 50vh;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
+    }
+
+    .featured-banner .overlay {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 2rem;
+        flex-direction: column;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .featured-content {
+        max-width: 600px;
+    }
+
+    .featured-content h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .featured-content .genres,
+    .featured-content .description {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: #ccc;
+    }
+
+    .featured-content .rating {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #ffd700;
+        margin-bottom: 1rem;
+    }
+
+    .featured-content .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .featured-content .btn {
+        padding: 0.5rem 1.2rem;
+        white-space: nowrap;
+        width: auto;
+        flex: none;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .actions .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        backdrop-filter: blur(6px);
+        transition: 0.3s;
+    }
+
+    .actions .btn:not(.secondary) {
+        background: #00ffaa;
+        color: #000;
+    }
+
+    .actions .btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid #00ffaa;
+    }
+
+    .actions .btn:hover {
+        background: #00dd99;
+    }
+
+    /* === Sidebar === */
+    .sidebar {
+        position: sticky;
+        top: 0;
+        height: 70vh;
+        min-width: 30%;
+        width: 30%;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        box-sizing: border-box;
+        z-index: 10;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar::-webkit-scrollbar {
+        display: none;
+    }
+
+    #search {
+        width: 92%;
+    }
+
+    .sidebar-form input,
+    .sidebar-form select,
+    .sidebar-form button {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.6rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .sidebar-form button {
+        background: #00ffaa;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .reset-link {
+        display: block;
+        background: #00ffaa;
+        color: #000;
+        font-weight: bold;
+        padding: 0.6rem;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.3s;
+    }
+
+    .reset-link:hover {
+        background: #00dd99;
+    }
+
+
+    .genre-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+    }
+
+    .genre-list li {
+        margin: 0.5rem 0;
+    }
+
+    .genre-list a {
+        color: #00ffaa;
+        text-decoration: none;
+        padding: 0.3rem 0.6rem;
+        border-radius: 5px;
+        display: inline-block;
+        transition: 0.3s;
+    }
+
+    .genre-list a:hover,
+    .genre-list a.active {
+        background: rgba(0, 255, 170, 0.2);
+    }
+
+    /* === Carousel === */
+    .carousel-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+        height: 70vh;
+        padding: 1rem 0;
+        box-sizing: border-box;
+    }
+
+    .carousel-card {
+        max-width: 220px;
+        height: 320px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: 0.6s ease-in-out;
+    }
+
+    .carousel-card img {
+        width: 100%;
+        height: 80%;
+        object-fit: cover;
+    }
+
+    .carousel-card h4 {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+
+    .left-card,
+    .right-card {
+        filter: blur(3px) brightness(0.7);
+        transform: scale(0.9);
+        opacity: 0.7;
+    }
+
+    .center-card {
+        transform: scale(1.05);
+        opacity: 1;
+        z-index: 2;
+    }
+
+    /* === Filtered Results === */
+    .filtered-grid-section {
+        padding: 2rem;
+        height: 100vh;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+
+    .filtered-grid-section::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filtered-grid-section h2 {
+        font-size: 24px;
+        color: #fff;
+        margin-bottom: 20px;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+        padding: 10px 0;
+    }
+
+    .movie-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .movie-card.full-details {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        transition: 0.3s;
+    }
+
+    .movie-card.full-details:hover {
+        transform: scale(1.02);
+    }
+
+    .poster img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .tag {
+        background: rgba(0, 255, 255, 0.1);
+        border: 1px solid #00ffff;
+        color: #00ffff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin: 2px;
+        font-size: 0.75rem;
+        display: inline-block;
+    }
+
+    .ott-platforms {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .ott-logo {
+        max-width: 60px;
+        max-height: 35px;
+        object-fit: contain;
+        border-radius: 6px;
+    }
+
+    .watchlist-btn {
+        background: #00ffff;
+        color: #000;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .watchlist-btn:hover {
+        background: #00cccc;
+    }
+
+    /* === Responsive === */
+    @media (max-width: 768px) {
+        .main-container {
+            flex-direction: column;
+            align-items: stretch;
+            width: 100vw;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        .sidebar {
+            width: 83vw !important;
+            max-width: 83vw !important;
+            display: none;
+            padding: 1rem;
+            margin: 0;
+            right: 10%;
+            box-sizing: border-box;
+        }
+
+        .sidebar.open {
+            width: 83vw !important;
+            max-width: 83vw !important;
+            display: block;
+            padding: 1rem;
+            margin: 0;
+            right: 10%;
+            box-sizing: border-box;
+        }
+
+        #search {
+            width: 95%;
+        }
+
+        .right-content {
+            width: 100vw !important;
+            display: flex;
+            justify-content: center;
+            padding: 1rem 0;
+            box-sizing: border-box;
+        }
+
+        .carousel-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            overflow: visible;
+        }
+
+
+        .carousel-card {
+            width: 200px;
+            height: 300px;
+            flex-shrink: 0;
+            scroll-snap-align: center;
+        }
+
+        .toggle-btn {
+            display: inline-block;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.5rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 1rem;
+        }
+
+        .actions .btn {
+            flex: 1 1 48%;
+            max-width: 48%;
+            box-sizing: border-box;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .filtered-grid-section h2 {
+            font-size: 1.5rem;
+            color: #fff;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    }
+</style>
+
+
+
+<script>
+    function expandMovie(card) {
+        card.classList.toggle('expanded');
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const sidebar = document.getElementById("sidebar");
+
+        // Toggle sidebar on button click
+        toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("open");
+        });
+
+        // Close sidebar on clicking outside
+        document.addEventListener("click", function (event) {
+            const isMobile = window.innerWidth <= 768;
+            const clickedOutside = !sidebar.contains(event.target) && !toggleBtn.contains(event.target);
+
+            if (isMobile && sidebar.classList.contains("open") && clickedOutside) {
+                sidebar.classList.remove("open");
+            }
+        });
+
+        // Auto-close on genre link click (in mobile)
+        const genreLinks = sidebar.querySelectorAll(".genre-list a");
+        genreLinks.forEach(link => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains("open")) {
+                    sidebar.classList.remove("open");
+                }
+            });
+        });
+    });
+
+
+    const posters = JSON.parse(document.getElementById("carousel-data").textContent);
+
+    let currentIndex = 0;
+
+    function updateCarousel() {
+        const total = posters.length;
+        const leftIndex = (currentIndex + 2) % total;
+        const centerIndex = currentIndex % total;
+        const rightIndex = (currentIndex + 1) % total;
+
+        document.querySelector('.left-card img').src = posters[leftIndex].poster;
+        document.querySelector('.left-card h4').textContent = posters[leftIndex].title;
+
+        document.querySelector('.center-card img').src = posters[centerIndex].poster;
+        document.querySelector('.center-card h4').textContent = posters[centerIndex].title;
+
+        document.querySelector('.right-card img').src = posters[rightIndex].poster;
+        document.querySelector('.right-card h4').textContent = posters[rightIndex].title;
+
+        currentIndex = (currentIndex + 1) % total;
+    }
+
+    setInterval(updateCarousel, 3000);
+
+
+
+    function showFilteredMovies(movies) {
+        const container = document.getElementById("filteredResultsSection");
+        const grid = document.getElementById("filteredMoviesGrid");
+
+        // Clear old results
+        grid.innerHTML = "";
+
+        if (movies.length > 0) {
+            // Show section
+            container.style.display = "block";
+
+            // Render movie cards
+            movies.forEach(movie => {
+                const card = document.createElement("div");
+                card.classList.add("movie-card");
+
+                card.innerHTML = `<img src="${movie.poster}" alt="${movie.title}" /><h3>${movie.title}</h3>`;
+
+                grid.appendChild(card);
+            });
+        } else {
+            container.style.display = "none";
+        }
+    }
+
+</script>
+
+{% endblock %}

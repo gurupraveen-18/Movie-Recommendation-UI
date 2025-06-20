@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}MovieVerse{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'movie_app/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'movie_app/css/loader.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'movie_app/images/icon.png' %}">
+
+
+
+    <style>
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #111;
+            padding: 10px 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .nav-toggle {
+            display: none;
+            font-size: 26px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 15px;
+            transition: all 0.4s ease;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 10px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #ff2020;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .nav-links.show {
+                max-height: 500px;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .nav-links li {
+                text-align: center;
+                width: 100%;
+            }
+        }
+
+        .footer {
+            background-color: #111;
+            color: #999;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+
+</head>
+
+<body>
+    {% include 'movie_app/loader.html' %}
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">🎬 MovieVerse</div>
+        <button class="nav-toggle" aria-label="Toggle Navigation">&#9776;</button>
+        <ul class="nav-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'categories' %}">Categories</a></li>
+            <li><a href="{% url 'watchlist' %}">Watchlist</a></li>
+            <li><a href="{% url 'review' %}">Review</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+        </ul>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 MovieVerse. Made with ❤️ by Gurupraveen. All rights reserved.</p>
+    </footer>
+
+    <!-- Navbar Toggle Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toggle = document.querySelector(".nav-toggle");
+            const navLinks = document.querySelector(".nav-links");
+            toggle.addEventListener("click", () => {
+                navLinks.classList.toggle("show");
+            });
+        });
+
+
+        window.addEventListener("load", function () {
+            const loader = document.getElementById("custom-loader");
+            if (loader) {
+                loader.style.opacity = "0";
+                loader.style.transition = "opacity 0.5s ease";
+                setTimeout(() => loader.style.display = "none", 500);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
