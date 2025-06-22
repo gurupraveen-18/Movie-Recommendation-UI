@@ -9,8 +9,7 @@ __pycache__/
 # SQLite DB
 db.sqlite3
 
-# Static/media
-/staticfiles/
+# media
 /media/
 
 # Environment secrets
